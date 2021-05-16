@@ -1,0 +1,97 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Immobilier index{% endblock %}
+
+{% block body %}
+    <h1 class="text-success text-center"><b class="text-danger">Y</b>'mobilier </h1>
+
+
+    <div class="row" style="margin-left: 15%" >
+        <div class="jumbotron">
+            <div class="container">
+                {{ form_start(form) }}
+<div class="form-row">
+    <div class="col">
+        {{ form_row(form.minSurface) }}
+    </div>
+    <div class="col">
+        {{ form_row(form.maxPrice) }}
+    </div>
+    <div class="col">
+        <button class="btn btn-primary">Rechercher</button>
+    </div>
+</div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+
+        {% for immobilier in pagination %}
+            <div class="card mb-3  m-2" style="max-width: 400px;">
+                <a class="btn btn" href="{{ path('immobilier_show', {'id': immobilier.id}) }}">
+                <div class="row g-0 ">
+                    <div class="col-md-12 ">
+                        {% set index0 = 5 %}
+                        {% if immobilier|length != 0 %}
+                             <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+                                 <div class="carousel-inner">
+
+                                     {% for image in immobilier.images %}
+                                     <div class="carousel-item  {% if loop.index0 == 0 %} active {% endif %} ">
+
+                                         <img src="{{ asset('/uploads/'~ image.imageName) }}"  class="d-block w-100 container-fluid"  style=" height: 250px; max-height: 250px" alt="...">
+
+                                     </div>
+
+                                     {% endfor %}
+
+                                     {% endif %}
+                                 </div>
+                                 <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+                                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                     <span class="visually-hidden">Previous</span>
+                                 </button>
+                                 <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+                                     <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                     <span class="visually-hidden">Next</span>
+                                 </button>
+                             </div>
+                      {#  <img src="{{ asset(image.imageName) }}" alt="...">#}
+
+                    </div>
+                    <div class="col-md-12">
+                        <div class="card-body">
+
+                            <h5 class="card-title">{{ immobilier.title }}</h5>
+                            <p class="card-text"></p>
+
+                           {# <p class="card-text">{{ immobilier.description }}</p>#}
+                            <p class="card-text">Rooms: {{ immobilier.rooms }}</p>
+
+
+
+                            <p class="card-text">Bedrooms: {{ immobilier.bedrooms }}</p>
+                            <p class="card-text">Surface: {{ immobilier.surface }} m²</p>
+                           {# <p class="card-text">Price: {{ immobilier.price }}</p>
+                            <p class="card-text">Places: {{ immobilier.places }}</p>
+                            <p class="card-text">Floor: {{ immobilier.floor ? 'Yes' : 'No' }}</p>
+                            <p class="card-text">Garage: {{ immobilier.garage ? 'Yes' : 'No' }}</p>
+                            <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+
+                            <a class="btn btn-warning" href="{{ path('immobilier_edit', {'id': immobilier.id}) }}">edit</a>#}
+                        </div>
+                    </div>
+                </div>
+                </a>
+            </div>
+
+        {% else %}
+
+        {% endfor %}
+    </div>
+    <div class="navigation mt-3 " style="    margin-left: 36%;">
+        {{ knp_pagination_render(pagination) }}
+    </div>
+{% endblock %}
+
+

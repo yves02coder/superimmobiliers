@@ -1,0 +1,15 @@
+{{ form_start(form) }}
+    {{ form_widget(form) }}
+
+{# Verifier si la route est annonce edit on affiche l'image #}
+{% if app.request.attributes.get('_route') == 'immobilier_edit' %}
+        <h2>Images</h2>
+    {% for image in immobilier.images %}
+    <div>
+        <img src="{{ asset('/uploads/'~ image.imageName) }}" alt="Image" width="150">
+        <a href="{{ path('immobilier_delete_image', {'id': image.id}) }}" data-delete data-token="{{ csrf_token('delete'~image.id) }}">supprimer</a>
+    </div>
+    {% endfor %}
+{% endif %}
+    <button class="btn btn-info">{{ button_label|default('Save') }}</button>
+{{ form_end(form) }}

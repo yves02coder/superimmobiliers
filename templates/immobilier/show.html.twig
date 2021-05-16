@@ -1,0 +1,108 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Immobilier{% endblock %}
+
+{% block body %}
+    <h1 class="text-center text-success mt-3"><b>{{ immobilier.title }}</b></h1>
+    <div class="container">
+
+        {% set index0 = 5 %}
+        {% if immobilier|length != 0 %}
+        <div id="carouselExampleControls" class="carousel slide text-center" data-bs-ride="carousel">
+            <div class="carousel-inner">
+
+                {% for image in immobilier.images %}
+
+                    <div class="carousel-item  {% if loop.index0 == 0 %} active {% endif %} ">
+
+                        <img src="{{ asset('/uploads/'~ image.imageName) }}" class=""
+                             style="width: auto; height: 350px; max-height: 350px" alt="...">
+
+                    </div>
+                {% endfor %}
+
+                {% endif %}
+                <button class="carousel-control-prev rounded-circle p-2" type="button"
+                        data-bs-target="#carouselExampleControls"
+                        data-bs-slide="prev">
+                    <span aria-hidden="true"><i class="fa fa-arrow-left text-dark fa-2x" aria-hidden="true"></i></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next rounded-circle p-2" type="button"
+                        data-bs-target="#carouselExampleControls"
+                        data-bs-slide="next">
+                    <span aria-hidden="true"><i class="fa fa-arrow-right text-dark fa-2x" aria-hidden="true"></i></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="d-flex justify-content-around flex-row">
+        <div class="col-md-12">
+            <div class="container text-center" style="width: 70%;margin-left: 20%">
+
+
+                <p class="card-text"></p>
+
+                <p class="card-text">{{ immobilier.description }}</p>
+               <h2 class="text-warning">Contacter l'agence</h2>
+                    <div id="contactForm" class="mt4">
+                        {{ form_start(form) }}
+                        <div class="row">
+                            <div class="container"> Vous nous contactez pour le bien: <b>{{ immobilier.title }}</b>
+                                <br> du numero: {{ immobilier.id }} </div>
+                            <div class="col">{{ form_row(form.lastname) }}</div>
+                            <div class="col">{{ form_row(form.phone) }}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col">{{ form_row(form.email) }}</div>
+                            <div class="col">{{ form_row(form.message) }}</div>
+                        </div>
+                    </div>
+                    {{ form_rest(form) }}
+                    <div class="form-group">
+                        <button class="btn-primary">Envoyer</button>
+                    </div>
+                    {{ form_end(form) }}
+                </div>
+
+            </div>
+
+
+
+            </div>
+
+
+        <div class="container flex-border"  >
+            <h4 class="text-center text-success mt-2">Infos supplementaires</h4>
+            <div class="text-center   border-dark">
+            <p class="card-text">Rooms: {{ immobilier.rooms }}</p>
+            <p class="card-text">Bedrooms: {{ immobilier.bedrooms }}</p>
+            <p class="card-text">Surface: {{ immobilier.surface }} m²</p>
+            <p class="card-text">Price: {{ immobilier.price }} €</p>
+            <p class="card-text">Places: {{ immobilier.places }}</p>
+            <p class="card-text">Floor: {{ immobilier.floor ? 'Yes' : 'No' }}</p>
+            <p class="card-text">Garage: {{ immobilier.garage ? 'Yes' : 'No' }}</p>
+            </div>
+            <div class="d-flex flex-row text-center mt-5" style="margin-left: 40%">
+                <a class="btn btn-warning m-1 " href="{{ path('immobilier_edit', {'id': immobilier.id}) }}">edit</a>
+                {{ include('immobilier/_delete_form.html.twig') }}
+                <a class="btn btn-secondary m-1 " href="{{ path('immobilier_index') }}"style="margin-left:50%">back to list</a>
+            </div>
+        </div>
+
+
+
+    {# <img src="{{ asset(image.imageName) }}" alt="..."> #}
+
+
+
+
+
+
+
+    {# <a href="{{ path('immobilier_edit', {'id': immobilier.id}) }}">edit</a> #}
+
+{% endblock %}
