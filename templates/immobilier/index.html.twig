@@ -3,28 +3,13 @@
 {% block title %}Immobilier index{% endblock %}
 
 {% block body %}
+
+
     <h1 class="text-success text-center"><b class="text-danger">Y</b>'mobilier </h1>
 
 
-    <div class="row" style="margin-left: 15%" >
-        <div class="jumbotron">
-            <div class="container">
-                {{ form_start(form) }}
-<div class="form-row">
-    <div class="col">
-        {{ form_row(form.minSurface) }}
-    </div>
-    <div class="col">
-        {{ form_row(form.maxPrice) }}
-    </div>
-    <div class="col">
-        <button class="btn btn-primary">Rechercher</button>
-    </div>
-</div>
 
-                {{ form_end(form) }}
-            </div>
-        </div>
+    <div class="row" style="margin-left: 15%" >
 
         {% for immobilier in pagination %}
             <div class="card mb-3  m-2" style="max-width: 400px;">
@@ -62,16 +47,16 @@
                     <div class="col-md-12">
                         <div class="card-body">
 
-                            <h5 class="card-title">{{ immobilier.title }}</h5>
+                            <h5 class="card-title"><i class="fa fa-newspaper-o" aria-hidden="true"></i>{{ immobilier.title|raw }}</h5>
                             <p class="card-text"></p>
 
                            {# <p class="card-text">{{ immobilier.description }}</p>#}
-                            <p class="card-text">Rooms: {{ immobilier.rooms }}</p>
+                            <p class="card-text"><i class="fa fa-square-o" aria-hidden="true"></i>Rooms: {{ immobilier.rooms }}</p>
 
 
 
-                            <p class="card-text">Bedrooms: {{ immobilier.bedrooms }}</p>
-                            <p class="card-text">Surface: {{ immobilier.surface }} m²</p>
+                            <p class="card-text"><i class="fa fa-bed" aria-hidden="true"></i>Bedrooms: {{ immobilier.bedrooms }}</p>
+                            <p class="card-text"><i class="fa fa-arrows-h" aria-hidden="true"></i>Surface: {{ immobilier.surface }} m²</p>
                            {# <p class="card-text">Price: {{ immobilier.price }}</p>
                             <p class="card-text">Places: {{ immobilier.places }}</p>
                             <p class="card-text">Floor: {{ immobilier.floor ? 'Yes' : 'No' }}</p>

@@ -1,6 +1,8 @@
 <?php
 
+
 namespace App\Form;
+
 
 use App\Entity\ImmobilierSearch;
 use Symfony\Component\Form\AbstractType;
@@ -8,7 +10,7 @@ use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class ImmobilierSearchType extends AbstractType
+class ImmobilierSearchType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -35,7 +37,7 @@ class ImmobilierSearchType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-           'data_class'=>ImmobilierSearch::class,
+            'data_class'=>ImmobilierSearch::class,
             'method'=>'get',
             'csrf_protection'=>false,
         ]);

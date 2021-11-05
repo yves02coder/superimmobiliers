@@ -2,23 +2,32 @@
 
 namespace App\Controller;
 
+use App\Data\SearchData;
 use App\Entity\Contact;
 use App\Entity\Immobilier;
 use App\Entity\Image;
 use App\Entity\ImmobilierSearch;
+use App\Entity\PropertySearch;
 use App\Form\ContactType;
+use App\Form\ImmobilierContactType;
 use App\Form\ImmobilierSearchType;
 use App\Form\ImmobilierType;
 use App\Form\SearchAnnonceType;
+use App\Form\SearchForm;
+use App\Notification\ContactNotification;
 use App\Repository\ImmobilierRepository;
 use Knp\Component\Pager\PaginatorInterface;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 /*use Symfony\Component\DomCrawler\Image;*/
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Routing\Annotation\Route;
+
 
 /**
  * @Route("/immobilier")
@@ -30,33 +39,31 @@ class ImmobilierController extends AbstractController
      */
     public function index(ImmobilierRepository $immobilierRepository,Request $request,PaginatorInterface $paginator): Response
     {
-        $search= new ImmobilierSearch();
-        $form= $this->createForm(ImmobilierSearchType::class,$search);
+        $search=new ImmobilierSearch();
+        $form=$this->createForm(ImmobilierSearch::class,$search);
         $form->handleRequest($request);
 
+
         $pagination=$paginator->paginate(
-            $immobilierRepository->findAlL($search),
+            $immobilierRepository->findAll(),
             $request->query->getInt('page',1),4
         );
 
-       /* $form= $this->createForm(SearchAnnonceType::class);
-        $search=$form->handleRequest($request);*/
-
-        /*if ($form->isSubmitted() && $form->isValid()){
-          $pagination=$paginator->$this->search($search->get('mots')
-          ->getData());
-        }*/
 
 
         return $this->render('immobilier/index.html.twig', [
             'pagination' => $pagination,
             'form'=>$form->createView()
 
+
+
+
         ]);
 
     }
 
     /**
+     * 
      * @Route("/new", name="immobilier_new", methods={"GET","POST"})
      */
     public function new(Request $request): Response
@@ -99,21 +106,47 @@ class ImmobilierController extends AbstractController
 
     /**
      * @Route("/{id}", name="immobilier_show", methods={"GET"})
+     * @throws \Symfony\Component\Mailer\Exception\TransportExceptionInterface
      */
-    public function show(Immobilier $immobilier): Response
+    public function show(Immobilier $immobilier,Request $request,ImmobilierRepository $repository,MailerInterface $mailer):Response
     {
-        $contact= new Contact();
-        $contact->setImmobilier($immobilier);
-        $form=$this->createForm( ContactType::class,$contact);
+        //$immobilier=$repository->findOneBy();
+        if (!$immobilier){
+            throw new NotFoundHttpException('pas d\'annonce trouvée');
+        }
+        $form=$this->createForm( ImmobilierContactType::class);
+        $contact = $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()){
+            $email= (new TemplatedEmail())
+                ->from($contact->get('email')->getData())
+                ->to($immobilier->getUser()->getEmail())
+                ->subject('contact au sujet de votre annonce"'. $immobilier->getTitle().'"')
+                ->htmlTemplate('emails/contact_immobilier.html.twig')
+                ->context([
+                    'immobilier'=>$immobilier,
+                    'mail'=>$contact->get('email')->getData(),
+                    'message'=>$contact->get('message')->getData()
+                ]);
+            $mailer->send($email);
+            $this->addFlash('message','votre message a bien ete envoyé');
+
+            return $this->redirectToRoute('immobilier_show',[
+             'id'=>$immobilier->getId(),
+            ]);
+
+        }
 
         return $this->render('immobilier/show.html.twig', [
             'immobilier' => $immobilier,
+
             'form' =>$form->createView()
 
         ]);
     }
 
     /**
+     * 
      * @Route("/{id}/edit", name="immobilier_edit", methods={"GET","POST"})
      */
     public function edit(Request $request, Immobilier $immobilier): Response

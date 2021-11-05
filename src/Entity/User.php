@@ -6,11 +6,14 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\UserRepository", repositoryClass=UserRepository::class)
+ * @ORM\Entity(repositoryClass=UserRepository::class)
+ * @UniqueEntity(fields={"email"}, message="There is already an account with this email")
  */
-class User
+class User implements UserInterface
 {
     /**
      * @ORM\Id
@@ -20,25 +23,25 @@ class User
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=180, unique=true)
      */
-    private $user_name;
+    private $email;
 
     /**
-     * @ORM\Column(type="string", length=255, unique=true)
+     * @ORM\Column(type="json")
      */
-    private $email_user;
+    private $roles = [];
 
     /**
-     * @var string the hashed password
-     * @ORM\Column(type="string", length=255)
+     * @var string The hashed password
+     * @ORM\Column(type="string")
      */
-    private $password_user;
+    private $password;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="boolean")
      */
-    private $phone_user;
+    private $isVerified = false;
 
     /**
      * @ORM\OneToMany(targetEntity=Immobilier::class, mappedBy="user")
@@ -46,14 +49,26 @@ class User
     private $users;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Immobilier::class, mappedBy="favoris")
+     * @ORM\ManyToMany(targetEntity=Favoris::class, mappedBy="favoris")
      */
     private $favoris;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Messages::class, mappedBy="sender", orphanRemoval=true)
+     */
+    private $sent;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Messages::class, mappedBy="recipient", orphanRemoval=true)
+     */
+    private $received;
 
     public function __construct()
     {
         $this->users = new ArrayCollection();
         $this->favoris = new ArrayCollection();
+        $this->sent = new ArrayCollection();
+        $this->received = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -61,50 +76,90 @@ class User
         return $this->id;
     }
 
-    public function getUserName(): ?string
+    public function getEmail(): ?string
     {
-        return $this->user_name;
+        return $this->email;
     }
 
-    public function setUserName(string $user_name): self
+    public function setEmail(string $email): self
     {
-        $this->user_name = $user_name;
+        $this->email = $email;
 
         return $this;
     }
 
-    public function getEmailUser(): ?string
+    /**
+     * A visual identifier that represents this user.
+     *
+     * @see UserInterface
+     */
+    public function getUsername(): string
     {
-        return $this->email_user;
+        return (string) $this->email;
     }
 
-    public function setEmailUser(string $email_user): self
+    /**
+     * @see UserInterface
+     */
+    public function getRoles(): array
     {
-        $this->email_user = $email_user;
+        $roles = $this->roles;
+        // guarantee every user at least has ROLE_USER
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
+    }
+
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
 
         return $this;
     }
 
-    public function getPasswordUser(): ?string
+    /**
+     * @see UserInterface
+     */
+    public function getPassword(): string
     {
-        return $this->password_user;
+        return $this->password;
     }
 
-    public function setPasswordUser(string $password_user): self
+    public function setPassword(string $password): self
     {
-        $this->password_user = $password_user;
+        $this->password = $password;
 
         return $this;
     }
 
-    public function getPhoneUser(): ?int
+    /**
+     * Returning a salt is only needed, if you are not using a modern
+     * hashing algorithm (e.g. bcrypt or sodium) in your security.yaml.
+     *
+     * @see UserInterface
+     */
+    public function getSalt(): ?string
     {
-        return $this->phone_user;
+        return null;
     }
 
-    public function setPhoneUser(int $phone_user): self
+    /**
+     * @see UserInterface
+     */
+    public function eraseCredentials()
     {
-        $this->phone_user = $phone_user;
+        // If you store any temporary, sensitive data on the user, clear it here
+        // $this->plainPassword = null;
+    }
+
+    public function isVerified(): bool
+    {
+        return $this->isVerified;
+    }
+
+    public function setIsVerified(bool $isVerified): self
+    {
+        $this->isVerified = $isVerified;
 
         return $this;
     }
@@ -140,14 +195,14 @@ class User
     }
 
     /**
-     * @return Collection|Immobilier[]
+     * @return Collection|Favoris[]
      */
     public function getFavoris(): Collection
     {
         return $this->favoris;
     }
 
-    public function addFavori(Immobilier $favori): self
+    public function addFavori(Favoris $favori): self
     {
         if (!$this->favoris->contains($favori)) {
             $this->favoris[] = $favori;
@@ -157,7 +212,7 @@ class User
         return $this;
     }
 
-    public function removeFavori(Immobilier $favori): self
+    public function removeFavori(Favoris $favori): self
     {
         if ($this->favoris->removeElement($favori)) {
             $favori->removeFavori($this);
@@ -166,5 +221,63 @@ class User
         return $this;
     }
 
+    /**
+     * @return Collection|Messages[]
+     */
+    public function getSent(): Collection
+    {
+        return $this->sent;
+    }
 
+    public function addSent(Messages $sent): self
+    {
+        if (!$this->sent->contains($sent)) {
+            $this->sent[] = $sent;
+            $sent->setSender($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSent(Messages $sent): self
+    {
+        if ($this->sent->removeElement($sent)) {
+            // set the owning side to null (unless already changed)
+            if ($sent->getSender() === $this) {
+                $sent->setSender(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Messages[]
+     */
+    public function getReceived(): Collection
+    {
+        return $this->received;
+    }
+
+    public function addReceived(Messages $received): self
+    {
+        if (!$this->received->contains($received)) {
+            $this->received[] = $received;
+            $received->setRecipient($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReceived(Messages $received): self
+    {
+        if ($this->received->removeElement($received)) {
+            // set the owning side to null (unless already changed)
+            if ($received->getRecipient() === $this) {
+                $received->setRecipient(null);
+            }
+        }
+
+        return $this;
+    }
 }

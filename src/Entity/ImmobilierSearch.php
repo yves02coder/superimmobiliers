@@ -4,7 +4,9 @@
 namespace App\Entity;
 
 
-class ImmobilierSearch
+use Symfony\Component\Form\AbstractType;
+
+class ImmobilierSearch extends AbstractType
 {
     /**
      * @var int|null

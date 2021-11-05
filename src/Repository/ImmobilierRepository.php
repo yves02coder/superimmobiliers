@@ -2,10 +2,13 @@
 
 namespace App\Repository;
 
+use App\Data\SearchData;
 use App\Entity\Immobilier;
 use App\Entity\ImmobilierSearch;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Knp\Component\Pager\Pagination\PaginationInterface;
+use Knp\Component\Pager\PaginatorInterface;
 
 /**
  * @method Immobilier|null find($id, $lockMode = null, $lockVersion = null)
@@ -19,18 +22,11 @@ class ImmobilierRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Immobilier::class);
     }
+    
 
-    /**
-     * @return void
 
-   /* public function search($mots){
-        $query=$this->createQueryBuilder('p');
-        if ($mots !=null){
-            $query->andWhere('MATCH_AGAINST(p.title, p.description) AGAINST(:mots boolean)>0')
-                ->setParameter('mots', $mots);
-        }
-        return $query->getQuery()->getResult();
-    }*/
+
+   
 
     // /**
     //  * @return Immobilier[] Returns an array of Immobilier objects
