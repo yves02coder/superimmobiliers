@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+{% extends 'admi.html.twig' %}
 
 {% block title %}Register{% endblock %}
 
@@ -18,6 +18,10 @@
         }) }}
         {{ form_row(registrationForm.agreeTerms) }}
 
-        <button type="submit" class="btn">Register</button>
+        <button type="submit" class="btn btn-warning">Register</button>
+{% if is_granted('ROLE_ADMIN') == true %}
     {{ form_end(registrationForm) }}
+    {% else %}
+
+    {% endif %}
 {% endblock %}

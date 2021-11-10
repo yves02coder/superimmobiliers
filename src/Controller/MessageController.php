@@ -11,10 +11,12 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 class MessageController extends AbstractController
 {
     /**
+     * @IsGranted("ROLE_USER")
      * @Route("/message", name="message")
      */
     public function index():Response
@@ -55,7 +57,7 @@ class MessageController extends AbstractController
      */
     public function received(): Response
     {
-        return $this->render('messages/received.html.twig');
+        return $this->render('message/received.html.twig');
     }
 
 
@@ -64,7 +66,7 @@ class MessageController extends AbstractController
      */
     public function sent(): Response
     {
-        return $this->render('messages/sent.html.twig');
+        return $this->render('message/sent.html.twig');
     }
 
     /**
@@ -77,7 +79,7 @@ class MessageController extends AbstractController
         $em->persist($message);
         $em->flush();
 
-        return $this->render('messages/read.html.twig', compact("message"));
+        return $this->render('message/read.html.twig', compact("message"));
     }
 
     /**

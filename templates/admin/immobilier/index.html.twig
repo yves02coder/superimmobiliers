@@ -1,0 +1,98 @@
+{% extends 'admi.html.twig' %}
+
+{% block title %}Gestion immobilier{% endblock %}
+
+{% block body %}
+    <h1 class="mt-5">Gerer vos biens</h1>
+
+
+    <table class="table table-hover table-info table-bordered">
+        <thead>
+        <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Titre</th>
+            <th scope="col">Active</th>
+            <th scope="col">Action</th>
+
+        </tr>
+        </thead>
+        <tbody>
+        {% for immobilier in immobilier %}
+            <tr>
+                <td>{{ immobilier.id }}</td>
+                <td>{{ immobilier.title }}</td>
+
+                <td>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked" {{ (immobilier.active) ? 'checked' : ' '}} data-id="{{ immobilier.id }}">
+                        <label class="form-check-label" for="flexSwitchCheckChecked"></label>
+                    </div>
+
+
+                </td>
+                <td class="text-center">
+                    <a href="#" class="btn btn-danger rounded-1 primary press modal-trigger" data-target="modal-delete" data-id="{{ immobilier.id }}" data-titre="{{ immobilier.title }}">supprimer</a>
+
+                </td>
+
+            </tr>
+
+
+
+        {% endfor %}
+
+        </tbody>
+    </table>
+    <div class="container">
+        <a href="{{ path("immobilier_index") }}" class="btn btn-outline-secondary">Go back to list</a>
+    </div>
+    <div class="container">
+        <div class="modal shadow-1 white falling" id="modal-delete" data-ax="modal">
+            <div class="modal-header">Header</div>
+
+            <div class="divider"></div>
+
+            <div class="modal-content">
+
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="modal-footer">
+                <a href="" class="ml-auto  shadow-1 rounded-1 small  ">valider</a>
+                <button data-target="modal-delete" class="ml-auto btn shadow-1 rounded-1 small primary modal-trigger">Close</button>
+            </div>
+        </div>
+    </div>
+
+
+    {#{ dump(categories) }#}
+{% endblock %}
+
+{% block javascripts %}
+
+    <script>
+        window.onload =()=>{
+            // modal = new Modal('#modal-delete');
+            activer = document.querySelectorAll("[type=checkbox]")
+            for(let bouton of activer){
+                bouton.addEventListener("click", function(){
+                    let xmlhttp = new XMLHttpRequest;
+
+                    xmlhttp.open("get", `/admin/immobilier/activer/${this.dataset.id}`)
+                    xmlhttp.send()
+                })
+            }
+            let supprimer = document.querySelectorAll(".modal-trigger")
+            for(let bouton of supprimer){
+                bouton.addEventListener("click", function (){
+                    document.querySelector(".modal-footer a").href = `/admin/immobilier/supprimer/${this.dataset.id}`
+                    document.querySelector(".modal-content").innerText = `Etes vous sur de vouloir supprimer"${this.dataset.titre}"`
+                })
+            }
+        }
+
+
+    </script>
+
+{% endblock %}

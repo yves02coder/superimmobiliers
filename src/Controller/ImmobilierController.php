@@ -20,6 +20,7 @@ use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 /*use Symfony\Component\DomCrawler\Image;*/
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -45,7 +46,7 @@ class ImmobilierController extends AbstractController
 
 
         $pagination=$paginator->paginate(
-            $immobilierRepository->findAll(),
+            $immobilierRepository->findBy(['active'=>true]),
             $request->query->getInt('page',1),4
         );
 
@@ -63,7 +64,7 @@ class ImmobilierController extends AbstractController
     }
 
     /**
-     * 
+     * @IsGranted("ROLE_USER")
      * @Route("/new", name="immobilier_new", methods={"GET","POST"})
      */
     public function new(Request $request): Response
@@ -146,7 +147,7 @@ class ImmobilierController extends AbstractController
     }
 
     /**
-     * 
+     * @IsGranted("ROLE_USER")
      * @Route("/{id}/edit", name="immobilier_edit", methods={"GET","POST"})
      */
     public function edit(Request $request, Immobilier $immobilier): Response
@@ -184,6 +185,7 @@ class ImmobilierController extends AbstractController
     }
 
     /**
+     * @IsGranted("ROLE_USER")
      * @Route("/{id}", name="immobilier_delete", methods={"POST"})
      */
     public function delete(Request $request, Immobilier $immobilier): Response
@@ -221,6 +223,39 @@ class ImmobilierController extends AbstractController
         }
 
     }
+
+    /**
+     * @Route("/favoris/ajout/{id}", name="ajout_favoris")
+     */
+    public function ajoutFavoris(Immobilier $immobilier)
+    {
+        if(!$immobilier){
+            throw new NotFoundHttpException('Pas d\'annonce trouvée');
+        }
+        $immobilier->addFavori($this->getUser());
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($immobilier);
+        $em->flush();
+        return $this->redirectToRoute('app_home');
+    }
+
+    /**
+     * @Route("/favoris/retrait/{id}", name="retrait_favoris")
+     */
+    public function retraitFavoris(Immobilier $immobilier)
+    {
+        if(!$immobilier){
+            throw new NotFoundHttpException('Pas d\'annonce trouvée');
+        }
+        $immobilier->removeFavori($this->getUser());
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($immobilier);
+        $em->flush();
+        return $this->redirectToRoute('home');
+    }
+
 
 
 }

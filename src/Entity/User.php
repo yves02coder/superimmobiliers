@@ -59,6 +59,30 @@ class User implements UserInterface
     private $sent;
 
     /**
+     * @ORM\OneToMany (targetEntity=Immobilier::class, mappedBy="user", orphanRemoval=true)
+     */
+    private $immobilier;
+
+    /**
+     * @return Collection|Immobilier[]
+     */
+    public function getImmobilier(): Collection
+    {
+        return $this->immobilier;
+    }
+
+    /**
+     * @param ArrayCollection $immobilier
+     * @return User
+     */
+    public function setImmobilier(ArrayCollection $immobilier): User
+    {
+        $this->immobilier = $immobilier;
+        return $this;
+    }
+
+
+    /**
      * @ORM\OneToMany(targetEntity=Messages::class, mappedBy="recipient", orphanRemoval=true)
      */
     private $received;
@@ -66,10 +90,19 @@ class User implements UserInterface
     public function __construct()
     {
         $this->users = new ArrayCollection();
+        $this->immobilier = new ArrayCollection();
         $this->favoris = new ArrayCollection();
         $this->sent = new ArrayCollection();
         $this->received = new ArrayCollection();
     }
+
+    public function __toString()
+    {
+        return $this->email;
+    }
+
+
+
 
     public function getId(): ?int
     {
@@ -278,6 +311,25 @@ class User implements UserInterface
             }
         }
 
+        return $this;
+    }
+    public function addImmobilier(Immobilier $immobilier): self
+    {
+        if ($this->immobilier->contains($immobilier)){
+            $this->immobilier[] = $immobilier;
+            $immobilier->setUser($this);
+        }
+        return $this;
+    }
+
+    public function removeImmobilier(Immobilier $immobilier): self
+    {
+        if ($this->immobilier->contains($immobilier)){
+            $this->immobilier->removeElement($immobilier);
+            if ($immobilier->getUser() === $this){
+                $immobilier->setUser(null);
+            }
+        }
         return $this;
     }
 }

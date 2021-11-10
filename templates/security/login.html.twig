@@ -1,43 +1,49 @@
-{% extends 'base.html.twig' %}
+{% extends 'admi.html.twig' %}
 
 {% block title %}Log in!{% endblock %}
 
 {% block body %}
-<form method="post">
+  <form method="post">
     {% if error %}
         <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
     {% endif %}
 
     {% if app.user %}
         <div class="mt-3">
-            You are logged in as {{ app.user.username }}, <a href="{{ path('app_logout') }}">Logout</a>
+            <p> <b> You are logged in as {{ app.user.username }}</b></p>
+           <a href="{{ path('app_logout') }}" class="btn btn-outline-warning">Logout</a>
         </div>
     {% endif %}
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <div class="wrapper fadeInDown">
+        <div id="formContent">
+            <!-- Tabs Titles -->
+            <h2 class="active"> Sign In </h2>
+            <h2 class="inactive underlineHover">Sign Up </h2>
 
-    <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
-    <label for="inputEmail">Email</label>
-    <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" autocomplete="email" required autofocus>
-    <label for="inputPassword">Password</label>
-    <input type="password" name="password" id="inputPassword" class="form-control" autocomplete="current-password" required>
+            <!-- Icon -->
+            <div class="fadeIn first">
+                <img src="https://e7.pngegg.com/pngimages/295/403/png-clipart-real-estate-estate-agent-house-logo-inmobiliaria-angle-text.png" id="icon" alt="User Icon" />
+            </div>
 
-    <input type="hidden" name="_csrf_token"
-           value="{{ csrf_token('authenticate') }}"
-    >
+            <!-- Login Form -->
+            <form>
+                <label>Email</label>
+                <label for="inputEmail"></label><input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" autocomplete="email" required autofocus>
+                <label>Password</label>
+                <label for="inputPassword"></label><input type="password" name="password" id="inputPassword" class="form-control" autocomplete="current-password" required>
+                <input type="hidden" name="_csrf_token"
+                       value="{{ csrf_token('authenticate') }}"
+                >
+                <input type="submit" class="fadeIn fourth" value="Log In">
+            </form>
 
-    {#
-        Uncomment this section and add a remember_me option below your firewall to activate remember me functionality.
-        See https://symfony.com/doc/current/security/remember_me.html
+            <!-- Remind Passowrd -->
+            <div id="formFooter">
+                <a href="{{ path('app_logout') }}" class="btn btn-outline-warning">Logout</a>
+            </div>
 
-        <div class="checkbox mb-3">
-            <label>
-                <input type="checkbox" name="_remember_me"> Remember me
-            </label>
         </div>
-    #}
-
-    <button class="btn btn-lg btn-primary" type="submit">
-        Sign in
-    </button>
+    </div>
 </form>
-    <a href="{{ path('immobilier_index') }}" class="btn btn-success mt-3">retour</a>
 {% endblock %}

@@ -1,41 +1,88 @@
-{% extends 'base.html.twig' %}
+{% extends 'user.html.twig' %}
 
-{% block title %}User index{% endblock %}
+{% block title %}private controller{% endblock %}
 
 {% block body %}
-    <h1>User index</h1>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>User_name</th>
-                <th>Email_user</th>
-                <th>Password_user</th>
-                <th>Phone_user</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for user in users %}
-            <tr>
-                <td>{{ user.id }}</td>
-                <td>{{ user.userName }}</td>
-                <td>{{ user.emailUser }}</td>
-                <td>{{ user.passwordUser }}</td>
-                <td>{{ user.phoneUser }}</td>
-                <td>
-                    <a href="{{ path('user_show', {'id': user.id}) }}">show</a>
-                    <a href="{{ path('user_edit', {'id': user.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="6">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+<div class="p-5 text-center bg-light">
+	<h1 class="mb-3">Bienvenue
+		{{ app.user.email }}</h1>
+	<h4 class="mb-3">Dashboard</h4>
+	<a class="btn btn-primary" href="{{ path("app_logout") }}" role="button">quitter le tableau de bord</a>
 
-    <a href="{{ path('user_new') }}">Create new</a>
+</div>
+
+	<div class="grix xs2">
+		<a class="btn btn-outline-info" href="{{ path('immobilier_new') }}">Create new</a>
+
+	</div>
+	<br/>
+	<p class="text-warning">vous avez ({{ app.user.immobilier | length }}) annonce</p>
+	<div class="row row-cols-1 row-cols-md-3 g-4">
+
+		{% for immobilier in app.user.immobilier %}
+			<div class="container">
+				<div class="col-6">
+					<div class="card " style="width: 350px; height: 350px;">
+						<a class="btn btn" href="{{ path('immobilier_show', {'id': immobilier.id}) }}">
+							<div class="row g-0 ">
+								<div class="col-md-12 ">
+									{% set index0 = 5 %}
+									{% if immobilier|length != 0 %}
+										<div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+											<div class="carousel-inner">
+
+												{% for image in immobilier.images %}
+													<div class="carousel-item  {% if loop.index0 == 0 %} active {% endif %} ">
+
+														
+
+
+														<h3>Name:
+															{{ immobilier.title |raw }}</h3>
+
+														<img src="{{ asset('/uploads/'~ image.imageName) }}" class="d-block w-100 container-fluid" style=" height: 250px; max-height: 250px" alt="...">
+													</div>
+
+												{% endfor %}
+
+											{% endif %}
+										</div>
+										<button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+											<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+											<span class="visually-hidden">Previous</span>
+										</button>
+										<button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+											<span class="carousel-control-next-icon" aria-hidden="true"></span>
+											<span class="visually-hidden">Next</span>
+										</button>
+
+									</div>
+
+
+								</div>
+								<div class="card-footer">
+									<h5 class="card-title">{{ immobilier.surface }}
+										m²</h5>
+
+								</div>
+
+
+							</div>
+						</a>
+
+					</div>
+
+				</div>
+				<a class="btn btn-outline-success" href="{{ path('immobilier_show', {'id': immobilier.id}) }}">show</a>
+				<a class="btn btn-outline-warning" href="{{ path('immobilier_edit', {'id': immobilier.id}) }}">edit</a>
+				<a class="btn btn-outline-info" href="{{ path('immobilier_new') }}">Create new</a>
+				{{ include('immobilier/_delete_form.html.twig') }}
+			</div>
+
+		{% endfor %}
+
+	</div>
+
+
 {% endblock %}
